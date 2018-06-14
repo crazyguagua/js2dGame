@@ -1,15 +1,17 @@
 import Assets from '@/res/assets'
 import State from '@/states/state'
 import GameState from '@/states/gameState'
+import KeyManager from '../input/keyManager';
 
 let loginState,settingState
+let keyManager
 class Game{
-    constructor({title,fps=30,width=300,height=300}){
+    constructor({title,fps=30,width,height}){
         document.title =title
         this.title = title
         this.fps = fps
-        this.width = width
-        this.height = height
+        this.width = width||window.innerWidth
+        this.height = height||window.innerHeight
         this.init()
     }
     init(width,height){
@@ -27,7 +29,9 @@ class Game{
         this.x = 5
         this.ctx.fillStyle='red'
         
-        loginState = new GameState()
+        keyManager = new KeyManager()
+        loginState = new GameState(keyManager)
+        
         State.setState(loginState)
     }
     render(){
@@ -39,9 +43,10 @@ class Game{
         //this.ctx.drawSheet(this.sp1,this.x,0,80,80)
         State.getState().render(this.ctx)
     }
-    tick(_dt){
+    update(_dt){
         // console.log(`_dt:${_dt}`)
         //this.x += 20 * _dt
+        keyManager.update(_dt)
         State.getState().update(_dt)
     }
     run(){
@@ -63,7 +68,7 @@ class Game{
                     let dt = timer/1000
                     //时间间隔超过一帧的时间，表示刷新周期到了
                     timer =0 //timer 清零
-                    this.tick(dt,realFps) //每帧更新状态
+                    this.update(dt,realFps) //每帧更新状态
                     this.render()//传给render方法的参数是一帧经过的时间 单位为秒
 
                 }
